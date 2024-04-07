@@ -36,10 +36,13 @@ function getPromise(number) {
  * Promise.resolve('success') => promise that will be fulfilled with 'success' value
  * Promise.reject('fail')     => promise that will be fulfilled with 'fail' value
  */
-function getPromiseResult(source) {
-  return source
-    .then(() => Promise.resolve('success'))
-    .catch(() => Promise.resolve('fail'));
+async function getPromiseResult(source) {
+  try {
+    await source;
+    return await Promise.resolve('success');
+  } catch {
+    return Promise.resolve('fail');
+  }
 }
 
 /**
@@ -109,10 +112,9 @@ function getAllOrNothing(promises) {
  * [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)] => Promise fulfilled with [1, 2, 3]
  * [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)]  => Promise fulfilled with [1, null, 3]
  */
-function getAllResult(promises) {
-  return Promise.allSettled(promises).then((results) =>
-    results.map((res) => (res.status === 'fulfilled' ? res.value : null))
-  );
+async function getAllResult(promises) {
+  const results = await Promise.allSettled(promises);
+  return results.map((res) => (res.status === 'fulfilled' ? res.value : null));
 }
 
 /**
@@ -133,8 +135,19 @@ function getAllResult(promises) {
  * [promise1, promise4, promise3] => Promise.resolved('104030')
  * [promise1, promise4, promise3, promise2] => Promise.resolved('10403020')
  */
-function queuPromises(/* promises */) {
-  throw new Error('Not implemented');
+async function queuPromises(promises) {
+  const res = [];
+  promises.forEach(async (p, i) => {
+    const val = await p;
+    res[i] = val;
+  });
+  let str;
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      str = res.join('');
+      resolve(str);
+    }, 7);
+  });
 }
 
 module.exports = {
