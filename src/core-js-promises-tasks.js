@@ -146,7 +146,7 @@ async function queuPromises(promises) {
     setTimeout(() => {
       str = res.join('');
       resolve(str);
-    }, 7);
+    }, 100);
   });
 }
 
